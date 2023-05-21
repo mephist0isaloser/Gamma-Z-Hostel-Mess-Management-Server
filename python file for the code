@@ -1,0 +1,37 @@
+import subprocess
+
+data = [
+    ["Jennee", "102122001", "GarnetA", "0", "1", "-"],
+    ["Jacquelin", "102122002", "GarnetA", "0", "3", "-"],
+    # Add the rest of the data here
+]
+
+for row in data:
+    name = row[0]
+    roll_number = row[1]
+    hostel = row[2]
+    room = row[3]
+    mess = row[4]
+
+    # Create Hostel Warden account and home directory
+    warden_username = f"Warden_{hostel}"
+    warden_home_dir = f"/home/HostelWardens/{hostel}"
+    subprocess.run(["sudo", "useradd", "-d", warden_home_dir, "-m", warden_username])
+    subprocess.run(["sudo", "passwd", warden_username])
+
+    # Create Student account and home directory
+    student_username = f"Student_{roll_number}"
+    student_home_dir = f"/home/HostelWardens/{hostel}/Room{room}/{student_username}"
+    subprocess.run(["sudo", "useradd", "-d", student_home_dir, "-m", student_username])
+    subprocess.run(["sudo", "passwd", student_username])
+
+    # Set permissions for the student's home directory
+    subprocess.run(["sudo", "chown", f"{student_username}:{student_username}", student_home_dir])
+
+    # Print the created accounts and directories
+    print(f"Created Hostel Warden: {warden_username} ({warden_home_dir})")
+    print(f"Created Student: {student_username} ({student_home_dir})")
+
+# Create the alias for genStudent
+subprocess.run(["echo", "alias genStudent='ls /home/HostelWardens/*/Room*/'", ">>", "~/.bashrc"])
+subprocess.run(["source", "~/.bashrc"])
